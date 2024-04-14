@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { Pool } from "pg";
 
-// Define an interface for errors with a status property.
+// Interface for errors with a status property.
 interface ErrorWithStatus extends Error {
   status?: number;
 }
@@ -16,8 +16,8 @@ const pool = new Pool({
   port: parseInt(process.env.PGPORT || "5432"),
 });
 
-// Set up the express application.
-const app: express.Application = express();
+// Instance of the express application.
+export const app: express.Application = express();
 const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
 // Middleware to parse JSON request bodies.
@@ -66,7 +66,7 @@ app.patch(
       "UPDATE applicants SET name = $1, bio = $2, experience = $3 WHERE id = $4 RETURNING *",
       [name, bio, experience, id]
     );
-    if (result.rows.length === 0) {
+    if (result.rowCount === 0) {
       res.status(404).send("Applicant not found");
     } else {
       res.json(result.rows[0]);
@@ -102,8 +102,3 @@ app.use(
     res.status(err.status || 500).send(err.message || "Server error");
   }
 );
-
-// Start the server and listen on the specified port.
-app.listen(port, () => {
-  console.log(`Server is listening at http://localhost:${port}/`);
-});
